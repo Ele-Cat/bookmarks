@@ -5,13 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>我的导航</title>
+<meta name="description" content="常用站点 · 分类整理">
+<meta name="theme-color" content="#f6f7f9">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f9d6b'/%3E%3Cpath d='M11 8.5h10A1.5 1.5 0 0 1 22.5 10v14.2L16 19.9l-6.5 4.3V10A1.5 1.5 0 0 1 11 8.5z' fill='%23fff'/%3E%3C/svg%3E">
 <script>
   /* 先定主题再渲染，避免首屏白闪 */
   (function () {
+    var meta = document.querySelector('meta[name="theme-color"]');
     try {
       var t = localStorage.getItem('nav-theme');
       if (!t) t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', t);
+      if (meta) meta.setAttribute('content', t === 'dark' ? '#14171b' : '#f6f7f9');
     } catch (e) {
       document.documentElement.setAttribute('data-theme', 'light');
     }
@@ -24,14 +29,15 @@
     --soft: #f0f2f5;
     --border: #e6e8ec;
     --text1: #1b1f24;
-    --text2: #6b7480;
+    --text2: #5f6875;
     --brand: #0f9d6b;
     --brand-soft: #e9f7f1;
     --brand-text: #0b7d56;
     --mark: rgba(250, 204, 21, .38);
+    --star: #b45309;
     --shadow: 0 6px 18px rgba(17, 24, 39, .08);
     --radius: 8px;
-    --side: 236px;
+    --side: 200px;
     color-scheme: light;
   }
   [data-theme="dark"] {
@@ -45,6 +51,7 @@
     --brand-soft: rgba(52, 211, 153, .10);
     --brand-text: #6ee7b7;
     --mark: rgba(250, 204, 21, .26);
+    --star: #fbbf24;
     --shadow: 0 8px 24px rgba(0, 0, 0, .45);
     color-scheme: dark;
   }
@@ -121,7 +128,7 @@
     outline: none;
     transition: background .15s, border-color .15s, box-shadow .15s;
   }
-  .search input::placeholder { color: var(--text2); opacity: .8; }
+  .search input::placeholder { color: var(--text2); }
   .search input:focus {
     background: var(--elv);
     border-color: var(--brand);
@@ -177,7 +184,6 @@
     transition: opacity .15s, transform .15s;
   }
   .dir-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .dir-item .num { font-size: 11px; opacity: .65; font-variant-numeric: tabular-nums; }
   .dir-item.active {
     background: var(--brand-soft);
     color: var(--brand-text);
@@ -185,9 +191,6 @@
     box-shadow: inset 2px 0 0 var(--brand);
   }
   .dir-item.active .dot { opacity: 1; transform: scale(1.35); }
-  .search-item { margin-bottom: 4px; }
-  .search-item .dot { background: var(--brand); }
-  .search-item .num { opacity: .8; }
   .quick-item .dot { background: var(--brand); }
 
   /* ---------- 主体 ---------- */
@@ -218,6 +221,18 @@
     cursor: pointer;
   }
   .quick-clear:hover { color: var(--text1); border-color: var(--text2); }
+  .search-more {
+    display: block;
+    margin: 16px auto 0;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--elv);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .search-more:hover { color: var(--text1); border-color: var(--text2); }
 
   /* tab 条在所属区块内吸顶 */
   .tabbar {
@@ -263,7 +278,6 @@
     border-radius: 2px;
     background: var(--brand);
   }
-  .tab .n { font-size: 10.5px; opacity: .55; margin-left: 5px; font-variant-numeric: tabular-nums; }
 
   /* ---------- 卡片 ---------- */
   .grid {
@@ -277,10 +291,11 @@
   }
 
   .card {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    align-items: start;
+    column-gap: 10px;
     min-width: 0;
-    min-height: 92px;
     padding: 10px 12px 9px;
     background: var(--elv);
     border: 1px solid var(--border);
@@ -289,7 +304,7 @@
     transition: background .2s, border-color .2s, box-shadow .2s, transform .2s;
   }
   .card-shell { position: relative; min-width: 0; }
-  .card-shell .card { height: 100%; padding-right: 42px; }
+  .card-shell .card { height: 100%; }
   .fav-btn {
     position: absolute; top: 8px; right: 8px;
     width: 28px; height: 28px;
@@ -305,7 +320,7 @@
     z-index: 2;
   }
   .fav-btn:hover { color: var(--brand-text); background: var(--soft); }
-  .fav-btn[aria-pressed="true"] { color: #e6a700; }
+  .fav-btn[aria-pressed="true"] { color: var(--star); }
   .fav-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
   .card:hover {
     background: var(--brand-soft);
@@ -316,30 +331,46 @@
   .card:active { transform: translateY(0); }
   .card:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
-  .card-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
   .ico {
+    position: relative;
     width: 34px; height: 34px; flex: none;
     display: grid; place-items: center;
     border-radius: 6px;
     background: var(--soft);
     overflow: hidden;
   }
-  .ico img { width: 22px; height: 22px; object-fit: contain; border-radius: 3px; }
+  /* 字母色块先占位，图标加载成功后再盖上去，避免破图与闪烁 */
   .ico .letter {
-    display: none;
+    display: flex;
     align-items: center; justify-content: center;
     width: 100%; height: 100%;
     font-size: 15px; font-weight: 700;
     color: hsl(var(--h, 160) 45% 32%);
     background: hsl(var(--h, 160) 65% 90%);
   }
+  .ico img {
+    position: absolute; inset: 0; margin: auto;
+    width: 22px; height: 22px;
+    object-fit: contain;
+    border-radius: 3px;
+    background: var(--soft);
+    opacity: 0;
+    transition: opacity .18s;
+  }
+  .ico img.on { opacity: 1; }
   [data-theme="dark"] .ico .letter {
     color: hsl(var(--h, 160) 60% 80%);
     background: hsl(var(--h, 160) 30% 26%);
   }
 
+  .card-copy {
+    min-width: 0;
+    padding-right: 30px;
+  }
+
   .card-title {
-    flex: 1; min-width: 0;
+    display: block;
+    min-width: 0;
     font-size: 14.5px;
     font-weight: 600;
     line-height: 1.35;
@@ -350,22 +381,19 @@
   .card:hover .card-title { color: var(--brand-text); }
 
   .card-desc {
-    margin: 6px 0 0;
+    display: block;
     font-size: 12px;
-    line-height: 1.55;
+    line-height: 1.25;
     color: var(--text2);
-    display: -webkit-box;
-    line-clamp: 2;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
   .card-path {
-    margin-top: 6px;
+    margin-top: 4px;
     display: flex; align-items: center; gap: 5px;
     font-size: 11px;
     color: var(--text2);
-    opacity: .9;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -381,6 +409,23 @@
     font-size: 13px;
   }
   .empty b { display: block; font-size: 15px; color: var(--text1); margin-bottom: 4px; font-weight: 600; }
+
+  /* 键盘用户跳过左栏 */
+  .skip {
+    position: fixed;
+    left: 8px; top: -48px;
+    z-index: 50;
+    padding: 8px 12px;
+    background: var(--elv);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text1);
+    font-size: 13px;
+    text-decoration: none;
+    transition: top .15s;
+  }
+  .skip:focus { top: 8px; }
+  .main:focus { outline: none; }
 
   /* ---------- 窄屏 ---------- */
   @media (max-width: 899px) {
@@ -413,22 +458,33 @@
     }
     .dir-item.active { box-shadow: none; }
     .dir-item .dot { display: none; }
-    .dir-item .num { display: none; }
-    .search-item { margin-bottom: 0; }
     .main { padding: 16px 14px 56px; }
     .group + .group { margin-top: 34px; padding-top: 20px; }
     .group-head h2 { font-size: 18px; }
     .tabbar { position: static; margin-top: 6px; }
     .tabbar.stuck { box-shadow: none; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
-    .card { min-height: 84px; padding: 9px 10px 8px; }
+    .card {
+      grid-template-columns: 30px minmax(0, 1fr);
+      padding: 9px 10px 8px;
+      column-gap: 9px;
+    }
     .ico { width: 30px; height: 30px; }
     .ico img { width: 20px; height: 20px; }
     .card-title { font-size: 13.5px; }
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: .01ms !important;
+      animation-duration: .01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 </style>
 </head>
 <body>
+<button class="skip" type="button" id="skip">跳到内容</button>
 <div class="app">
   <aside class="side">
     <div class="brand">
@@ -467,30 +523,26 @@
         <span class="name">最近访问</span>
         <span class="num" id="recentNum">0</span>
       </button>
-      <button class="dir-item search-item" id="searchItem" type="button" hidden>
-        <span class="dot"></span>
-        <span class="name">搜索结果</span>
-        <span class="num" id="searchNum">0</span>
-      </button>
     </nav>
   </aside>
 
-  <main class="main" id="main">
+  <main class="main" id="main" tabindex="-1">
     <div id="groups"></div>
 
     <div id="searchView" hidden>
       <div class="group-head">
         <h2>搜索结果</h2>
-        <span class="meta" id="searchMeta"></span>
+        <span class="meta" id="searchMeta" aria-live="polite"></span>
       </div>
       <div class="grid" id="searchGrid"></div>
+      <button class="search-more" id="searchMore" type="button" hidden>继续显示</button>
       <div class="empty" id="searchEmpty" hidden></div>
     </div>
 
     <div id="quickView" hidden>
       <div class="group-head">
-        <h2 id="quickTitle"></h2>
-        <span class="meta" id="quickMeta"></span>
+        <h2 id="quickTitle" tabindex="-1"></h2>
+        <span class="meta" id="quickMeta" aria-live="polite"></span>
         <button class="quick-clear" id="quickClear" type="button">清空</button>
       </div>
       <div class="grid" id="quickGrid"></div>
@@ -516,8 +568,7 @@
   var searchGrid = document.getElementById('searchGrid');
   var searchMeta = document.getElementById('searchMeta');
   var searchEmpty = document.getElementById('searchEmpty');
-  var searchItem = document.getElementById('searchItem');
-  var searchNum = document.getElementById('searchNum');
+  var searchMore = document.getElementById('searchMore');
   var favoriteItem = document.getElementById('favoriteItem');
   var favoriteNum = document.getElementById('favoriteNum');
   var recentItem = document.getElementById('recentItem');
@@ -529,6 +580,16 @@
   var quickEmpty = document.getElementById('quickEmpty');
   var quickClear = document.getElementById('quickClear');
   var qEl = document.getElementById('q');
+  var mainEl = document.getElementById('main');
+  var skipBtn = document.getElementById('skip');
+
+  var motionQuery = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : null;
+  var reduceMotion = !!(motionQuery && motionQuery.matches);
+  if (motionQuery) {
+    var onMotion = function (ev) { reduceMotion = ev.matches; };
+    if (motionQuery.addEventListener) motionQuery.addEventListener('change', onMotion);
+    else if (motionQuery.addListener) motionQuery.addListener(onMotion);
+  }
 
   var state = { active: 0, tabs: [], q: '', quick: '', savedY: 0 };
   var dirItems = [];
@@ -536,15 +597,25 @@
   var tabBtns = [];
   var grids = [];
   var tabbars = [];
+  var panels = [];
   var spyLockUntil = 0;
   var spyTimer = 0;
   var skipHash = false;
   var canReplace = true;
   var STORE_FAVORITES = 'nav-favorites';
   var STORE_RECENTS = 'nav-recents';
+  var STORE_ICON_FAILS = 'nav-icon-fail';
+  var ICON_FAIL_TTL = 7 * 24 * 60 * 60 * 1000;
   var favorites = loadList(STORE_FAVORITES);
+  var favoriteSet = new Set(favorites);
   var recents = loadList(STORE_RECENTS);
+  var iconFails = loadIconFails();
   var catalog = {};
+  var searchIndex = [];
+  var renderedTabs = [];
+  var groupObserver = null;
+  var iconObserver = null;
+  var URL_ALIASES = window.URL_ALIASES || {};
 
   try { history.replaceState(null, '', location.href); } catch (e) { canReplace = false; }
 
@@ -603,6 +674,11 @@
     try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; }
   }
   function urlKey(url) {
+    try { return new URL(url).href; }
+    catch (e) { return String(url || ''); }
+  }
+  /* 旧版 key：去掉 hash 和尾部斜杠，仅用于迁移 localStorage */
+  function legacyKey(url) {
     try {
       var u = new URL(url);
       u.hash = '';
@@ -618,6 +694,76 @@
   function saveList(key, value) {
     try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
   }
+  function loadIconFails() {
+    try {
+      var value = JSON.parse(localStorage.getItem(STORE_ICON_FAILS) || '[]');
+      if (!Array.isArray(value)) return [];
+      var now = Date.now();
+      return value.filter(function (entry) {
+        return entry && entry.host && typeof entry.at === 'number' && now - entry.at < ICON_FAIL_TTL;
+      });
+    } catch (e) { return []; }
+  }
+  function iconFailed(host) {
+    if (!host) return false;
+    for (var i = 0; i < iconFails.length; i++) if (iconFails[i].host === host) return true;
+    return false;
+  }
+  function markIconFailed(host) {
+    if (!host || iconFailed(host)) return;
+    iconFails.push({ host: host, at: Date.now() });
+    if (iconFails.length > 300) iconFails = iconFails.slice(-300);
+    saveList(STORE_ICON_FAILS, iconFails);
+  }
+  function onIconLoad(e) {
+    var img = e.target;
+    if (img && img.tagName === 'IMG' && img.classList.contains('ico-img')) img.classList.add('on');
+  }
+  function onIconError(e) {
+    var img = e.target;
+    if (!img || img.tagName !== 'IMG' || !img.classList.contains('ico-img')) return;
+    /* 第一次失败换站点自身 favicon，第二次失败就退回字母色块并记缓存 */
+    if (img.dataset.fb === '0' && img.dataset.fallback) {
+      img.dataset.fb = '1';
+      img.src = img.dataset.fallback;
+      img.removeAttribute('data-src');
+      return;
+    }
+    markIconFailed(img.dataset.host);
+    img.remove();
+  }
+  function loadIcon(img) {
+    if (!img || img.getAttribute('src') || !img.dataset.src) return;
+    img.src = img.dataset.src;
+    img.removeAttribute('data-src');
+  }
+  function ensureIconObserver() {
+    if (iconObserver || !('IntersectionObserver' in window)) return;
+    iconObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        iconObserver.unobserve(entry.target);
+        loadIcon(entry.target);
+      });
+    }, { rootMargin: '300px 0px' });
+  }
+  function unwireIcons(container) {
+    if (!iconObserver || !container) return;
+    var imgs = container.querySelectorAll('img.ico-img');
+    for (var i = 0; i < imgs.length; i++) iconObserver.unobserve(imgs[i]);
+  }
+  /* 图标接近视口时才加载；缓存命中时补一次 .on，避免一直透明 */
+  function wireIcons(container) {
+    var imgs = container.querySelectorAll('img.ico-img');
+    ensureIconObserver();
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].getAttribute('src') && imgs[i].complete && imgs[i].naturalWidth > 0) imgs[i].classList.add('on');
+      else if (iconObserver) iconObserver.observe(imgs[i]);
+      else loadIcon(imgs[i]);
+    }
+  }
+  document.addEventListener('load', onIconLoad, true);
+  document.addEventListener('error', onIconError, true);
   function siteFavicon(item) {
     try { return new URL('/favicon.ico', item.url).href; } catch (e) { return ''; }
   }
@@ -626,44 +772,115 @@
     if (ICON_PROVIDER) return ICON_PROVIDER + encodeURIComponent(domain(item.url));
     return siteFavicon(item);
   }
-  function totalOf(g) {
-    return g.sections.reduce(function (n, s) { return n + s.items.length; }, 0);
-  }
   function findIndex(list, name) {
     for (var i = 0; i < list.length; i++) if (list[i].name === name) return i;
     return -1;
+  }
+  function migrateKeys(list) {
+    var byLegacy = {};
+    Object.keys(catalog).forEach(function (key) {
+      var entry = catalog[key];
+      if (!entry || !entry.item) return;
+      var old = legacyKey(entry.item.url);
+      if (!byLegacy[old]) byLegacy[old] = key;
+    });
+    var seen = {};
+    var out = [];
+    list.forEach(function (key) {
+      if (typeof key !== 'string') return;
+      var alias = URL_ALIASES[key];
+      var next = catalog[key] ? key : (alias && catalog[alias] ? alias : byLegacy[key]);
+      if (!next || !catalog[next] || seen[next]) return;
+      seen[next] = true;
+      out.push(next);
+    });
+    return out;
   }
   function indexItems() {
     NAV.forEach(function (g) {
       g.sections.forEach(function (s) {
         s.items.forEach(function (item) {
           catalog[urlKey(item.url)] = { item: item, group: g.name, section: s.name };
+          searchIndex.push({
+            item: item,
+            group: g.name,
+            section: s.name,
+            name: item.name.toLowerCase(),
+            desc: (item.desc || '').toLowerCase(),
+            keywords: (item.keywords || '').toLowerCase(),
+            url: (item.url || '').toLowerCase(),
+            groupText: g.name.toLowerCase(),
+            sectionText: s.name.toLowerCase(),
+          });
         });
       });
     });
-    favorites = favorites.filter(function (key) { return !!catalog[key]; });
-    recents = recents.filter(function (key) { return !!catalog[key]; }).slice(0, 20);
+    /* 旧 key 去掉了 hash，启动时一次性迁移到保留 hash 的新 key */
+    favorites = migrateKeys(favorites);
+    favoriteSet = new Set(favorites);
+    recents = migrateKeys(recents).slice(0, 20);
     saveList(STORE_FAVORITES, favorites);
     saveList(STORE_RECENTS, recents);
     updateQuickCounts();
   }
-  function isFavorite(item) { return favorites.indexOf(urlKey(item.url)) >= 0; }
+  function isFavorite(item) { return favoriteSet.has(urlKey(item.url)); }
   function updateQuickCounts() {
     favoriteNum.textContent = favorites.length;
     recentNum.textContent = recents.length;
   }
-  function refreshCards() {
-    updateQuickCounts();
-    if (state.quick) renderQuick();
-    else if (state.q) renderSearch();
-    else NAV.forEach(function (g, gi) { renderGrid(gi); });
+  function updateFavButton(btn, on, name) {
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    if (name) btn.setAttribute('aria-label', (on ? '取消收藏 ' : '收藏 ') + name);
+    btn.title = on ? '取消收藏' : '收藏';
+    btn.textContent = on ? '★' : '☆';
   }
-  function toggleFavorite(key) {
+  function clearRenderedCache() {
+    renderedTabs.forEach(function (cache) {
+      if (!cache) return;
+      Object.keys(cache).forEach(function (ti) { delete cache[ti]; });
+    });
+  }
+  function syncFavoriteButtons(key) {
+    var entry = catalog[key];
+    var name = entry && entry.item ? entry.item.name : '';
+    var on = favoriteSet.has(key);
+    var btns = document.querySelectorAll('.fav-btn');
+    for (var i = 0; i < btns.length; i++) {
+      if (btns[i].dataset.url === key) updateFavButton(btns[i], on, name);
+    }
+    clearRenderedCache();
+  }
+  function syncAllFavoriteButtons() {
+    var btns = document.querySelectorAll('.fav-btn');
+    for (var i = 0; i < btns.length; i++) {
+      var key = btns[i].dataset.url;
+      var entry = catalog[key];
+      updateFavButton(btns[i], favoriteSet.has(key), entry && entry.item ? entry.item.name : '');
+    }
+    clearRenderedCache();
+  }
+  function toggleFavorite(key, btn) {
     var i = favorites.indexOf(key);
-    if (i >= 0) favorites.splice(i, 1);
+    var removing = i >= 0;
+    if (removing) favorites.splice(i, 1);
     else if (catalog[key]) favorites.unshift(key);
+    if (removing) favoriteSet.delete(key);
+    else if (catalog[key]) favoriteSet.add(key);
     saveList(STORE_FAVORITES, favorites);
-    refreshCards();
+    updateQuickCounts();
+
+    if (state.quick === 'favorites' && removing) {
+      /* 收藏视图里取消收藏要移除卡片，按原位置把焦点交给下一条 */
+      var all = quickGrid.querySelectorAll('.fav-btn');
+      var pos = Array.prototype.indexOf.call(all, btn);
+      syncFavoriteButtons(key);
+      renderQuick();
+      var next = quickGrid.querySelectorAll('.fav-btn');
+      if (next.length) next[Math.min(pos < 0 ? 0 : pos, next.length - 1)].focus();
+      else quickTitle.focus();
+      return;
+    }
+    syncFavoriteButtons(key);
   }
   function recordRecent(key) {
     if (!catalog[key]) return;
@@ -676,46 +893,53 @@
 
   /* ---------- 卡片 ---------- */
   function cardHTML(item, path) {
-    var desc = item.desc ? '<p class="card-desc">' + hl(item.desc, state.q) + '</p>' : '';
-    var meta = path ? '<div class="card-path">' + esc(path[0]) + '<i>/</i>' + esc(path[1]) + '</div>' : '';
+    var desc = item.desc ? '<span class="card-desc">' + hl(item.desc, state.q) + '</span>' : '';
+    var meta = path ? '<span class="card-path">' + esc(path[0]) + '<i>/</i>' + esc(path[1]) + '</span>' : '';
     var key = urlKey(item.url);
+    var host = domain(item.url);
     var fallback = siteFavicon(item);
-    var onerror = fallback
-      ? "if(!this.dataset.fallback){this.dataset.fallback='1';this.src='" + esc(fallback) + "'}else{this.style.display='none';this.nextElementSibling.style.display='flex'}"
-      : "this.style.display='none';this.nextElementSibling.style.display='flex'";
+    var src = iconSrc(item);
+    var img = src && !iconFailed(host)
+      ? '<img class="ico-img" data-src="' + esc(src) + '" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"'
+        + ' data-fb="0" data-host="' + esc(host) + '"'
+        + (fallback && fallback !== src ? ' data-fallback="' + esc(fallback) + '"' : '') + '>'
+      : '';
     return '<div class="card-shell">'
       + '<a class="card" data-url="' + esc(key) + '" href="' + esc(item.url) + '" target="_blank" rel="noreferrer noopener"'
       + ' title="' + esc(item.name + (item.desc ? ' · ' + item.desc : '')) + '">'
-      + '<span class="card-head">'
-      + '<span class="ico"><img src="' + esc(iconSrc(item)) + '" alt="" loading="lazy" decoding="async"'
-      + ' onerror="' + onerror + '">'
-      + '<span class="letter" style="--h:' + hue(item.name) + '">' + esc(firstChar(item.name)) + '</span></span>'
+      + '<span class="ico"><span class="letter" aria-hidden="true" style="--h:' + hue(item.name) + '">' + esc(firstChar(item.name)) + '</span>'
+      + img + '</span>'
+      + '<span class="card-copy">'
       + '<span class="card-title">' + hl(item.name, state.q) + '</span>'
-      + '</span>'
       + desc + meta
+      + '</span>'
       + '</a>'
       + '<button class="fav-btn" type="button" data-url="' + esc(key) + '" aria-label="'
-      + (isFavorite(item) ? '取消收藏 ' : '收藏 ') + esc(item.name) + '" aria-pressed="' + isFavorite(item) + '" title="收藏">'
+      + (isFavorite(item) ? '取消收藏 ' : '收藏 ') + esc(item.name) + '" aria-pressed="' + isFavorite(item) + '" title="'
+      + (isFavorite(item) ? '取消收藏' : '收藏') + '">'
       + (isFavorite(item) ? '★' : '☆') + '</button>'
       + '</div>';
   }
 
   /* ---------- 构建整页 ---------- */
   function groupHTML(g, gi) {
-    var total = totalOf(g);
     var tabs = g.sections.map(function (s, ti) {
-      return '<button class="tab" type="button" role="tab" data-g="' + gi + '" data-t="' + ti + '"'
-        + ' aria-selected="' + (ti === 0) + '">'
-        + esc(s.name) + '<span class="n">' + s.items.length + '</span></button>';
+      return '<button class="tab" type="button" role="tab" id="tab-g' + gi + '-' + ti + '"'
+        + ' data-g="' + gi + '" data-t="' + ti + '"'
+        + ' aria-controls="panel-g' + gi + '"'
+        + ' aria-selected="' + (ti === 0) + '"'
+        + ' tabindex="' + (ti === 0 ? '0' : '-1') + '">'
+        + esc(s.name) + '</button>';
     }).join('');
     return '<section class="group" id="g' + gi + '" data-g="' + gi + '">'
       + '<div class="group-head">'
       + '<h2>' + esc(g.name) + '</h2>'
-      + '<span class="meta">' + g.sections.length + ' 个分类 · ' + total + ' 个站点</span>'
       + '</div>'
       + '<div class="tabbar"><div class="tabs" role="tablist" aria-label="' + esc(g.name) + '">' + tabs + '</div></div>'
-      + '<div class="grid"></div>'
+      + '<div class="panel" role="tabpanel" id="panel-g' + gi + '" aria-labelledby="tab-g' + gi + '-0">'
+      + '<div class="grid"' + (gi ? ' style="min-height:' + Math.ceil(g.sections[0].items.length / 4) * 62 + 'px"' : '') + '></div>'
       + '<div class="empty" hidden></div>'
+      + '</div>'
       + '</section>';
   }
 
@@ -727,12 +951,33 @@
     });
     grids = sections.map(function (sec) { return sec.querySelector('.grid'); });
     tabbars = sections.map(function (sec) { return sec.querySelector('.tabbar'); });
+    panels = sections.map(function (sec) { return sec.querySelector('.panel'); });
     state.tabs = NAV.map(function () { return 0; });
+    renderedTabs = NAV.map(function () { return {}; });
 
-    NAV.forEach(function (g, gi) { renderGrid(gi); });
+    renderGrid(0);
     renderDir();
     sections.forEach(function (sec, gi) { observeTabs(gi); });
+    observeGroups();
     updateFadeAll();
+  }
+
+  function observeGroups() {
+    if (!('IntersectionObserver' in window)) {
+      NAV.forEach(function (g, gi) { renderGrid(gi); });
+      return;
+    }
+    groupObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var gi = Number(entry.target.dataset.g);
+        renderGrid(gi);
+        groupObserver.unobserve(entry.target);
+      });
+    }, { rootMargin: '500px 0px' });
+    sections.forEach(function (section, gi) {
+      if (gi > 0) groupObserver.observe(section);
+    });
   }
 
   function quickEntries(kind) {
@@ -758,31 +1003,38 @@
     quickGrid.innerHTML = entries.map(function (entry) {
       return cardHTML(entry.item, [entry.group, entry.section]);
     }).join('');
+    wireIcons(quickGrid);
   }
 
   function enterQuick(kind) {
-    if (!state.q && !state.quick) state.savedY = window.scrollY;
-    state.q = '';
-    qEl.value = '';
+    var fromSearch = !!state.q;
+    if (fromSearch) leaveSearch(false);
+    if (!state.quick && !fromSearch) state.savedY = window.scrollY;
     state.quick = kind;
     groupsEl.hidden = true;
     searchView.hidden = true;
-    searchItem.hidden = true;
     quickView.hidden = false;
     dirItems.forEach(function (b) { b.classList.remove('active'); b.removeAttribute('aria-current'); });
     favoriteItem.classList.toggle('active', kind === 'favorites');
     recentItem.classList.toggle('active', kind === 'recents');
     renderQuick();
     window.scrollTo({ top: 0, behavior: 'auto' });
+    quickTitle.focus({ preventScroll: true });
   }
 
   function leaveQuick(restore) {
+    var kind = state.quick;
+    var hadFocus = quickView.contains(document.activeElement);
     state.quick = '';
     quickView.hidden = true;
     groupsEl.hidden = false;
     favoriteItem.classList.remove('active');
     recentItem.classList.remove('active');
     if (restore) window.scrollTo({ top: state.savedY, behavior: 'auto' });
+    if (hadFocus) {
+      var back = kind === 'favorites' ? favoriteItem : recentItem;
+      if (back) back.focus({ preventScroll: true });
+    }
     updateSpy(true);
   }
 
@@ -792,17 +1044,33 @@
     var sec = g.sections[ti];
     var grid = grids[gi];
     var empty = sections[gi].querySelector('.empty');
+    var cache = renderedTabs[gi];
+    if (cache && Object.prototype.hasOwnProperty.call(cache, ti)) {
+      unwireIcons(grid);
+      grid.innerHTML = cache[ti];
+      grid.hidden = !cache[ti];
+      empty.hidden = !!cache[ti];
+      if (cache[ti]) wireIcons(grid);
+      return;
+    }
 
     if (!sec || !sec.items.length) {
+      unwireIcons(grid);
       grid.hidden = true;
       grid.innerHTML = '';
       empty.hidden = false;
       empty.innerHTML = '<b>这个 tab 还是空的</b>去 data.js 里给它加几条链接吧。';
+      if (cache) cache[ti] = '';
       return;
     }
     empty.hidden = true;
     grid.hidden = false;
-    grid.innerHTML = sec.items.map(function (it) { return cardHTML(it, null); }).join('');
+    grid.style.minHeight = '';
+    var html = sec.items.map(function (it) { return cardHTML(it, null); }).join('');
+    unwireIcons(grid);
+    grid.innerHTML = html;
+    if (cache) cache[ti] = html;
+    wireIcons(grid);
   }
 
   function renderDir() {
@@ -810,7 +1078,6 @@
       return '<button class="dir-item" type="button" data-g="' + i + '">'
         + '<span class="dot"></span>'
         + '<span class="name">' + esc(g.name) + '</span>'
-        + '<span class="num">' + totalOf(g) + '</span>'
         + '</button>';
     }).join('');
     dirEl.insertAdjacentHTML('beforeend', html);
@@ -828,7 +1095,6 @@
       if (on) b.setAttribute('aria-current', 'true');
       else b.removeAttribute('aria-current');
     });
-    searchItem.classList.remove('active');
   }
 
   /* 窄屏时顶部横条是吸顶的，锚点要避开它 */
@@ -856,7 +1122,7 @@
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
       idx = sections.length - 1;
     }
-    if (idx !== state.active) setActive(idx);
+    if (force || idx !== state.active) setActive(idx);
     if (canReplace) syncHash();
     markStuck();
   }
@@ -873,13 +1139,15 @@
   function scrollToGroup(gi, smooth) {
     var sec = sections[gi];
     if (!sec) return;
+    renderGrid(gi);
     var target = sec.getBoundingClientRect().top + window.scrollY - headerH() - 8;
     if (target < 40) target = 0;
-    window.scrollTo({ top: target, behavior: smooth ? 'smooth' : 'auto' });
+    window.scrollTo({ top: target, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
   }
 
   function goGroup(i, smooth) {
     if (!sections[i]) return;
+    renderGrid(i);
     scrollToGroup(i, smooth);
     setActive(i);
     spyLockUntil = performance.now() + 700;
@@ -892,10 +1160,14 @@
     if (!g || !g.sections[ti]) return;
     state.tabs[gi] = ti;
     tabBtns[gi].forEach(function (b, i) {
-      b.setAttribute('aria-selected', i === ti ? 'true' : 'false');
+      var on = i === ti;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      b.setAttribute('tabindex', on ? '0' : '-1');
     });
+    if (panels[gi]) panels[gi].setAttribute('aria-labelledby', 'tab-g' + gi + '-' + ti);
     renderGrid(gi);
-    scrollTabIntoView(gi);
+    scrollTabIntoView(gi, !keepPosition);
+    updateFadeAll();
 
     if (!keepPosition) return;
     /* 内容高度变了，把区块顶回视口顶部，避免页面乱跳 */
@@ -905,18 +1177,25 @@
       spyLockUntil = performance.now() + 500;
     }
     syncHash();
-    updateFadeAll();
   }
 
-  function scrollTabIntoView(gi) {
+  function scrollTabIntoView(gi, instant) {
     var btn = tabBtns[gi][state.tabs[gi]];
     var wrap = tabBtns[gi][0] ? tabBtns[gi][0].parentNode : null;
     if (!btn || !wrap) return;
     var left = btn.offsetLeft;
     var right = left + btn.offsetWidth;
     if (left < wrap.scrollLeft || right > wrap.scrollLeft + wrap.clientWidth) {
-      var target = left - (wrap.clientWidth - btn.offsetWidth) / 2;
-      wrap.scrollLeft = Math.max(0, target);
+      var target = Math.max(0, left - (wrap.clientWidth - btn.offsetWidth) / 2);
+      if (instant) {
+        /* 深链/初始定位不要动画，避免页面打开时 tab 条自己滑动 */
+        var prev = wrap.style.scrollBehavior;
+        wrap.style.scrollBehavior = 'auto';
+        wrap.scrollLeft = target;
+        wrap.style.scrollBehavior = prev;
+      } else {
+        wrap.scrollLeft = target;
+      }
     }
     updateFade(wrap);
   }
@@ -949,12 +1228,42 @@
     syncHash();
   });
 
-  document.getElementById('main').addEventListener('click', function (e) {
+  /* tablist 内用方向键切换，焦点跟随；阻止冒泡避免和全局左右键重复触发 */
+  groupsEl.addEventListener('keydown', function (e) {
+    if (composing || e.isComposing) return;
+    var tab = e.target.closest('.tab');
+    if (!tab) return;
+    var gi = Number(tab.dataset.g);
+    var list = tabBtns[gi];
+    if (!list || !list.length) return;
+    var ti = state.tabs[gi];
+    var next = -1;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (ti + 1) % list.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (ti - 1 + list.length) % list.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = list.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setActive(gi);
+    selectTab(gi, next, true);
+    list[next].focus();
+    spyLockUntil = performance.now() + 600;
+  });
+
+  if (skipBtn && mainEl) {
+    skipBtn.addEventListener('click', function () {
+      mainEl.focus({ preventScroll: true });
+      mainEl.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  }
+
+  mainEl.addEventListener('click', function (e) {
     var favorite = e.target.closest('.fav-btn');
     if (favorite) {
       e.preventDefault();
       e.stopPropagation();
-      toggleFavorite(favorite.dataset.url);
+      toggleFavorite(favorite.dataset.url, favorite);
       return;
     }
     var card = e.target.closest('.card[data-url]');
@@ -962,15 +1271,20 @@
   });
 
   quickClear.addEventListener('click', function () {
-    if (state.quick === 'favorites') {
+    var clearedFavorites = state.quick === 'favorites';
+    if (clearedFavorites) {
       favorites = [];
+      favoriteSet.clear();
       saveList(STORE_FAVORITES, favorites);
     } else if (state.quick === 'recents') {
       recents = [];
       saveList(STORE_RECENTS, recents);
     }
     updateQuickCounts();
+    /* 清空收藏后，主网格/搜索结果里的星标也要同步变回空心 */
+    if (clearedFavorites) syncAllFavoriteButtons();
     renderQuick();
+    quickTitle.focus({ preventScroll: true });
   });
 
   /* ---------- 滚动监听 ---------- */
@@ -991,39 +1305,35 @@
   function searchAll(q) {
     var terms = searchTerms(q), out = [];
     if (!terms.length) return out;
-    for (var i = 0; i < NAV.length; i++) {
-      var g = NAV[i];
-      for (var j = 0; j < g.sections.length; j++) {
-        var s = g.sections[j];
-        for (var n = 0; n < s.items.length; n++) {
-          var it = s.items[n];
-          var name = it.name.toLowerCase();
-          var desc = (it.desc || '').toLowerCase();
-          var keywords = (it.keywords || '').toLowerCase();
-          var url = (it.url || '').toLowerCase();
-          var group = g.name.toLowerCase();
-          var section = s.name.toLowerCase();
-          var score = 0, matched = true;
-          for (var t = 0; t < terms.length; t++) {
-            var k = terms[t], termScore = 0;
-            if (name === k) termScore = 12;
-            else if (name.indexOf(k) === 0) termScore = 10;
-            else if (name.indexOf(k) >= 0) termScore = 8;
-            else if (keywords.indexOf(k) >= 0) termScore = 7;
-            else if (section.indexOf(k) >= 0) termScore = 5;
-            else if (group.indexOf(k) >= 0) termScore = 4;
-            else if (url.indexOf(k) >= 0) termScore = 3;
-            else if (desc.indexOf(k) >= 0) termScore = 2;
-            if (!termScore) { matched = false; break; }
-            score += termScore;
-          }
-          if (matched) out.push({ item: it, group: g.name, section: s.name, score: score });
-        }
+    for (var i = 0; i < searchIndex.length; i++) {
+      var row = searchIndex[i];
+      var score = 0, matched = true;
+      for (var t = 0; t < terms.length; t++) {
+        var k = terms[t], termScore = 0;
+        if (row.name === k) termScore = 12;
+        else if (row.name.indexOf(k) === 0) termScore = 10;
+        else if (row.name.indexOf(k) >= 0) termScore = 8;
+        else if (row.keywords.indexOf(k) >= 0) termScore = 7;
+        else if (row.sectionText.indexOf(k) >= 0) termScore = 5;
+        else if (row.groupText.indexOf(k) >= 0) termScore = 4;
+        else if (row.url.indexOf(k) >= 0) termScore = 3;
+        else if (row.desc.indexOf(k) >= 0) termScore = 2;
+        if (!termScore) { matched = false; break; }
+        score += termScore;
       }
+      if (matched) out.push({ item: row.item, group: row.group, section: row.section, score: score });
     }
     out.sort(function (a, b) { return b.score - a.score || a.item.name.localeCompare(b.item.name, 'zh-CN'); });
     return out;
   }
+
+  var searchTimer = 0;
+  var composing = false;
+  var composingEndAt = 0;
+  var lastSearchKey = '';
+  var searchHits = [];
+  var SEARCH_PAGE_SIZE = 100;
+  var searchLimit = SEARCH_PAGE_SIZE;
 
   function enterSearch() {
     if (!searchView.hidden) return;
@@ -1032,50 +1342,102 @@
     groupsEl.hidden = true;
     quickView.hidden = true;
     searchView.hidden = false;
-    searchItem.hidden = false;
     dirItems.forEach(function (b) { b.classList.remove('active'); b.removeAttribute('aria-current'); });
-    searchItem.classList.add('active');
     favoriteItem.classList.remove('active');
     recentItem.classList.remove('active');
     window.scrollTo({ top: 0, behavior: 'auto' });
   }
 
   function leaveSearch(restore) {
+    clearTimeout(searchTimer);
+    lastSearchKey = '';
+    searchHits = [];
+    searchLimit = SEARCH_PAGE_SIZE;
     state.q = '';
     qEl.value = '';
+    unwireIcons(searchGrid);
+    searchGrid.innerHTML = '';
+    searchGrid.hidden = false;
+    searchEmpty.hidden = true;
+    searchEmpty.innerHTML = '';
+    searchMore.hidden = true;
     searchView.hidden = true;
     groupsEl.hidden = false;
-    searchItem.hidden = true;
-    searchItem.classList.remove('active');
     if (restore) window.scrollTo({ top: state.savedY, behavior: 'auto' });
     updateSpy(true);
   }
 
   function renderSearch() {
     var hits = searchAll(state.q);
-    searchNum.textContent = hits.length;
-    searchMeta.textContent = '「' + state.q + '」· ' + hits.length + ' 个匹配';
+    searchHits = hits;
+    /* 结果没变就不重绘，避免宽泛关键词反复重建上百张卡片 */
+    var shown = hits.slice(0, searchLimit);
+    var key = state.q + '\u0000' + searchLimit + '\u0000' + hits.map(function (h) { return urlKey(h.item.url); }).join('\u0000');
+    if (key === lastSearchKey) return;
+    lastSearchKey = key;
+
+    searchMeta.textContent = '「' + state.q + '」· 共 ' + hits.length + ' 条，当前显示 ' + shown.length + ' 条';
 
     if (!hits.length) {
       searchGrid.hidden = true;
+      searchMore.hidden = true;
       searchEmpty.hidden = false;
       searchEmpty.innerHTML = '<b>没有找到匹配的站点</b>试试更短的关键词，或直接清空搜索。';
       return;
     }
     searchEmpty.hidden = true;
     searchGrid.hidden = false;
-    searchGrid.innerHTML = hits.map(function (h) {
+    unwireIcons(searchGrid);
+    searchGrid.innerHTML = shown.map(function (h) {
       return cardHTML(h.item, [h.group, h.section]);
     }).join('');
+    searchMore.hidden = shown.length >= hits.length;
+    searchMore.textContent = '继续显示 ' + Math.min(SEARCH_PAGE_SIZE, hits.length - shown.length) + ' 条';
+    wireIcons(searchGrid);
   }
 
-  qEl.addEventListener('input', function () {
+  function runSearch() {
     var v = qEl.value.trim();
     if (v === state.q) return;
     state.q = v;
     if (!v) { leaveSearch(true); return; }
+    searchLimit = SEARCH_PAGE_SIZE;
     enterSearch();
     renderSearch();
+  }
+
+  searchMore.addEventListener('click', function () {
+    searchLimit += SEARCH_PAGE_SIZE;
+    lastSearchKey = '';
+    renderSearch();
+  });
+
+  function openSearchHit(hit) {
+    if (!hit || !hit.item) return;
+    var item = hit.item;
+    recordRecent(urlKey(item.url));
+    var a = document.createElement('a');
+    a.href = item.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  /* 中文输入法拼写阶段不要搜索，等上屏后再跑 */
+  qEl.addEventListener('compositionstart', function () { composing = true; });
+  qEl.addEventListener('compositionend', function () {
+    composing = false;
+    composingEndAt = performance.now();
+    clearTimeout(searchTimer);
+    runSearch();
+  });
+  qEl.addEventListener('input', function () {
+    if (composing) return;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 120);
   });
 
   /* ---------- 地址栏 ---------- */
@@ -1096,9 +1458,11 @@
 
   function applyHash() {
     if (!NAV.length) return;
-    if (state.quick) leaveQuick(false);
     var raw = '';
     try { raw = decodeURIComponent(location.hash.replace(/^#\/?/, '')); } catch (e) { return; }
+    /* 先读 hash 再清视图：清视图时 updateSpy 会 syncHash 改写地址 */
+    if (state.q) leaveSearch(false);
+    if (state.quick) leaveQuick(false);
     if (!raw) { goGroup(0, false); return; }
     var parts = raw.split('/');
     var gi = findIndex(NAV, parts[0]);
@@ -1118,7 +1482,6 @@
   dirEl.addEventListener('click', function (e) {
     var btn = e.target.closest('.dir-item');
     if (!btn) return;
-    if (btn === searchItem) return;
     if (btn === favoriteItem) { enterQuick('favorites'); return; }
     if (btn === recentItem) { enterQuick('recents'); return; }
     if (state.q) leaveSearch(false);
@@ -1128,9 +1491,20 @@
 
   /* ---------- 键盘 ---------- */
   document.addEventListener('keydown', function (e) {
+    /* 输入法拼写阶段不响应 Enter/Escape/快捷键 */
+    if (composing || e.isComposing) return;
     var tag = document.activeElement && document.activeElement.tagName;
     var inInput = /^(INPUT|TEXTAREA|SELECT)$/.test(tag || '');
 
+    if (e.key === 'Enter' && !e.repeat && document.activeElement === qEl) {
+      /* 刚结束输入法组合时按 Enter 通常是在上屏，不打开结果 */
+      if (composingEndAt && performance.now() - composingEndAt < 80) return;
+      e.preventDefault();
+      clearTimeout(searchTimer);
+      runSearch();
+      if (searchHits.length) openSearchHit(searchHits[0]);
+      return;
+    }
     if (e.key === '/' && !inInput) {
       e.preventDefault();
       qEl.focus();
@@ -1157,10 +1531,12 @@
 
   /* ---------- 主题 ---------- */
   var themeBtn = document.getElementById('theme');
+  var themeMeta = document.querySelector('meta[name="theme-color"]');
   function reflectTheme() {
     var dark = root.getAttribute('data-theme') === 'dark';
     themeBtn.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
     themeBtn.title = themeBtn.getAttribute('aria-label');
+    if (themeMeta) themeMeta.setAttribute('content', dark ? '#14171b' : '#f6f7f9');
   }
   themeBtn.addEventListener('click', function () {
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
@@ -1186,6 +1562,8 @@
   document.getElementById('siteName').textContent = SITE.name || '我的导航';
   document.getElementById('siteDesc').textContent = SITE.desc || '';
   document.title = SITE.name || '我的导航';
+  var descMeta = document.querySelector('meta[name="description"]');
+  if (descMeta) descMeta.setAttribute('content', SITE.desc || '常用站点 · 分类整理');
 
   if (!NAV.length) {
     groupsEl.innerHTML = '<div class="empty"><b>data.js 里还没有数据</b>照着文件头部的注释填几条就能用了。</div>';
