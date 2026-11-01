@@ -807,8 +807,16 @@
     var out = [];
     list.forEach(function (key) {
       if (typeof key !== 'string') return;
-      var alias = URL_ALIASES[key];
-      var next = catalog[key] ? key : (alias && catalog[alias] ? alias : byLegacy[key]);
+      var next = catalog[key] ? key : '';
+      var alias = key;
+      var aliasSeen = {};
+      /* 别名可能来自多轮 URL 清洗；逐层跟进，并防止错误配置形成循环 */
+      while (!next && URL_ALIASES[alias] && !aliasSeen[alias]) {
+        aliasSeen[alias] = true;
+        alias = URL_ALIASES[alias];
+        if (catalog[alias]) next = alias;
+      }
+      if (!next) next = byLegacy[key];
       if (!next || !catalog[next] || seen[next]) return;
       seen[next] = true;
       out.push(next);
