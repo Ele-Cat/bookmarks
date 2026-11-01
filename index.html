@@ -186,6 +186,13 @@
     transition: opacity .15s, transform .15s;
   }
   .dir-item .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dir-item .count {
+    flex: none;
+    color: var(--text2);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    opacity: .78;
+  }
   .dir-item.active {
     background: var(--brand-soft);
     color: var(--brand-text);
@@ -193,6 +200,7 @@
     box-shadow: inset 2px 0 0 var(--brand);
   }
   .dir-item.active .dot { opacity: 1; transform: scale(1.35); }
+  .dir-item.active .count { color: currentColor; opacity: .82; }
   .quick-item .dot { background: var(--brand); }
 
   /* ---------- 主体 ---------- */
@@ -935,9 +943,12 @@
   /* ---------- 构建整页 ---------- */
   function groupHTML(g, gi) {
     var tabs = g.sections.map(function (s, ti) {
+      var countTitle = '共 ' + s.items.length + ' 个书签';
       return '<button class="tab" type="button" role="tab" id="tab-g' + gi + '-' + ti + '"'
         + ' data-g="' + gi + '" data-t="' + ti + '"'
         + ' aria-controls="panel-g' + gi + '"'
+        + ' aria-label="' + esc(s.name + '，' + countTitle) + '"'
+        + ' title="' + countTitle + '"'
         + ' aria-selected="' + (ti === 0) + '"'
         + ' tabindex="' + (ti === 0 ? '0' : '-1') + '">'
         + esc(s.name) + '</button>';
@@ -1086,9 +1097,13 @@
 
   function renderDir() {
     var html = NAV.map(function (g, i) {
+      var count = g.sections.reduce(function (total, section) {
+        return total + section.items.length;
+      }, 0);
       return '<button class="dir-item" type="button" data-g="' + i + '">'
         + '<span class="dot"></span>'
         + '<span class="name">' + esc(g.name) + '</span>'
+        + '<span class="count" aria-label="' + count + ' 个书签">' + count + '</span>'
         + '</button>';
     }).join('');
     dirEl.insertAdjacentHTML('beforeend', html);
@@ -1476,6 +1491,46 @@
     if (state.quick) leaveQuick(false);
     if (!raw) { goGroup(0, false); return; }
     var parts = raw.split('/');
+    var oldGroup = parts[0];
+    var oldSection = parts[1] || '';
+    var groupAliases = {
+      '开发': '前端开发',
+      '后端·运维': '后端运维'
+    };
+    var sectionAliases = {
+      'AI/AI 编程': ['AI 生态', 'AI 编程'],
+      'AI/AI 开源项目': ['AI 生态', 'AI 编程'],
+      'AI/智能体·工作流': ['AI 生态', '智能体·工作流'],
+      'AI/MCP 工具': ['AI 生态', 'MCP 工具'],
+      'AI/模型·API': ['AI 生态', '大模型'],
+      'AI/AI 模型·社区': ['AI 生态', 'AI 模型·社区'],
+      'AI/AI 算力': ['AI 生态', 'AI 算力'],
+      'AI/提示词·Skills': ['AI 生态', '提示词'],
+      'AI/AI 学习': ['AI 生态', 'AI 教程·课程'],
+      'AI/AI 资讯': ['AI 生态', 'AI 资讯'],
+      'AI/AI 竞赛': ['AI 生态', 'AI 竞赛'],
+      'AI/AIGC 博主': ['AI 生态', 'AIGC 博主'],
+      'AI/AI 导航': ['AI 生态', 'AI 导航'],
+      'AI/AI 图像': ['AI', 'AI 图像生成'],
+      'AI/AI 视频': ['AI', 'AI 视频生成'],
+      'AI/AI 办公': ['AI', 'AI 文档·表格'],
+      '工具/在线工具箱': ['工具', '综合工具箱'],
+      '工具/图片处理': ['工具', '图片编辑'],
+      '学习/教程文档': ['学习', '编程·技术文档'],
+      '学习/综合学习': ['学习', '在线课程'],
+      '生活/常用': ['生活', '日常服务'],
+      '生活/资讯': ['生活', '新闻资讯'],
+      '生活/金融': ['生活', '金融机构'],
+      '生活/财经': ['生活', '财经资讯'],
+      '娱乐/视频网站': ['娱乐', '视频平台'],
+      '娱乐/摸鱼专用': ['娱乐', '趣味网站'],
+      '影视/海外剧': ['影视', '港台·其他海外剧'],
+      '素材/图片·视频素材': ['素材', '摄影图片'],
+      '素材/图片·设计素材': ['素材', '设计素材']
+    };
+    var mapped = sectionAliases[oldGroup + '/' + oldSection];
+    if (mapped) parts = mapped.slice();
+    else if (groupAliases[oldGroup]) parts[0] = groupAliases[oldGroup];
     var gi = findIndex(NAV, parts[0]);
     if (gi < 0) { goGroup(0, false); return; }
     var ti = parts[1] ? findIndex(NAV[gi].sections, parts[1]) : 0;
